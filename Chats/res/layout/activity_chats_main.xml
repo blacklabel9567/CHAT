@@ -2,8 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#000000"
+    android:id="@+id/RelativeLayout"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    tools:context=".ChatsMain" >
 
    <TextView
         android:id="@+id/title"
@@ -11,6 +13,7 @@
         android:layout_height="wrap_content"
         android:background="#52cc29"
         android:text="@string/chat"
+        android:layout_alignTop="@id/RelativeLayout"
         android:textColor="#FFFFFF" />
 
     <Button
@@ -18,7 +21,8 @@
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:text="@string/new_message"
-        android:layout_below="@id/title" />
+        android:layout_below="@id/title" 
+        android:onClick="newMessage"/>
 
     <LinearLayout
         android:layout_width="fill_parent"
