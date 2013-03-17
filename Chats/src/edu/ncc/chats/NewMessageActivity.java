@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 import android.support.v4.app.NavUtils;
 import android.telephony.SmsManager;
 
 public class NewMessageActivity extends Activity {
-
+	EditText txtPhoneNo;
+	EditText txtMessage;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -53,7 +55,12 @@ public class NewMessageActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	public void sendMessage(View view){
-		
+		txtPhoneNo = (EditText)findViewById(R.id.to);
+		txtMessage = (EditText)findViewById(R.id.message);
+		String theNumber = txtPhoneNo.getText().toString();
+		String theMessage = txtMessage.getText().toString();
+		SmsManager sms = SmsManager.getDefault();
+		sms.sendTextMessage(theNumber, null, theMessage, null, null);
 	}//end sendMessage
 
 }
