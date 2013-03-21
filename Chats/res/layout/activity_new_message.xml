@@ -24,8 +24,9 @@
             android:layout_height="76dp"
             android:ems="15"
             android:inputType="text"
-            android:text="@string/to"
-            android:textColor="#FFFFFF" >
+            android:hint="@string/to"
+            android:textColor="#FFFFFF">
+            
 
             <requestFocus />
         </EditText>
@@ -39,9 +40,8 @@
         android:layout_weight="0.52"
         android:ems="15"
         android:inputType="text"
-        android:text="@string/message"
-        android:textColor="#FFFFFF" />
-
+        android:hint="@string/message"
+        android:textColor="#FFFFFF"/>
     <TableRow
         android:id="@+id/tableRow3"
         android:layout_width="wrap_content"
@@ -50,14 +50,16 @@
         <Button
             android:id="@+id/clear"
             android:layout_weight="1"
+            android:background="@drawable/round_button"
             android:text="@string/clear"
-            android:textColor="#FFFFFF" />
+            android:textColor="#000000" />
 
         <Button
             android:id="@+id/send"
             android:layout_weight="1"
             android:text="@string/send"
-            android:textColor="#FFFFFF"
+            android:background="@drawable/round_button"
+            android:textColor="#000000"
             android:onClick="sendMessage" />
     </TableRow>
 

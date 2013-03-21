@@ -60,67 +60,59 @@ public class NewMessageActivity extends Activity {
 	}
 	public void sendMessage(View view){
 		String msgSent ="Message Sent!";
-    	String msgDelivered = "Message Delivered";
-    	
-    	txtPhoneNo = (EditText)findViewById(R.id.to);
+		String msgDelivered = "Message Delivered";
+
+		txtPhoneNo = (EditText)findViewById(R.id.to);
 		txtMessage = (EditText)findViewById(R.id.message);
-		
+
 		String theNumber = txtPhoneNo.getText().toString();
 		String theMessage = txtMessage.getText().toString();
-    	
-    	PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(msgSent), 0);
-    	PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(msgDelivered), 0);
-    	
-    	registerReceiver(new BroadcastReceiver()
-    	{
-    		public void onReciever(Context arg0, Intent arg1)
-    		{
-    			switch(getResultCode())
-    			{
-    			case Activity.RESULT_OK:
-    				Toast.makeText(NewMessageActivity.this,"SMS Sent",Toast.LENGTH_LONG).show();
-    				break;
-    			case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-    				Toast.makeText(getBaseContext(),"Generic Failure",Toast.LENGTH_LONG).show();
-    				break;
-    			case SmsManager.RESULT_ERROR_NO_SERVICE:	
-    				Toast.makeText(getBaseContext(),"No Service",Toast.LENGTH_LONG).show();
-    				break;
-    				
-    		}
-    	}
+
+		PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(msgSent), 0);
+		PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(msgDelivered), 0);
+
+
+		registerReceiver(new BroadcastReceiver(){
 
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				// TODO Auto-generated method stub
-				
-			}
-    	},new  IntentFilter(msgSent));//end registerReciever
-    	
-     	registerReceiver(new BroadcastReceiver()
-    	{
-    		public void onReciever(Context arg0, Intent arg1)
-    		{
-    			switch(getResultCode())
-    			{
-    			case Activity.RESULT_OK:
-    				Toast.makeText(getBaseContext(),"SMS deleivered",Toast.LENGTH_LONG).show();
-    				break;
-    			case Activity.RESULT_CANCELED:
-    				Toast.makeText(getBaseContext(),"SMS not deleivered",Toast.LENGTH_LONG).show();
-    				break;
-    		}
-    	}
 
+				switch(getResultCode())
+				{
+				case Activity.RESULT_OK:
+					Toast.makeText(NewMessageActivity.this,"SMS sent",Toast.LENGTH_LONG).show();
+					break;
+				case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+					Toast.makeText(getBaseContext(),"GENERIC FAILURE",Toast.LENGTH_LONG).show();
+					break;
+				case SmsManager.RESULT_ERROR_NO_SERVICE:
+					Toast.makeText(getBaseContext(),"NO SERVICE",Toast.LENGTH_LONG).show();
+					break;
+				}
+			}
+		},new  IntentFilter(msgSent));//end registerReciever
+		
+		registerReceiver(new BroadcastReceiver()
+		{
 			@Override
 			public void onReceive(Context context, Intent intent) {
-				// TODO Auto-generated method stub
-				
+
+				switch(getResultCode())
+				{
+				case Activity.RESULT_OK:
+					Toast.makeText(getBaseContext(),"SMS Delivered",Toast.LENGTH_LONG).show();
+					break;
+				case Activity.RESULT_CANCELED:
+					Toast.makeText(getBaseContext(),"SMS NOT Delivered",Toast.LENGTH_LONG).show();
+					break;
+				}
 			}
-    	},new  IntentFilter(msgDelivered));//end registerReciever
-    	
-		
-		
+		},new  IntentFilter(msgDelivered));//end registerReciever
+
+
+
+
+
 		SmsManager sms = SmsManager.getDefault();
 		sms.sendTextMessage(theNumber, null, theMessage, sentPI, deliveredPI);
 	}//end sendMessage
