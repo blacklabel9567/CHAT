@@ -4,41 +4,28 @@
     android:layout_height="match_parent"
     android:background="#000000"
     android:columnCount="1"
-    tools:context=".NewMessageActivity" >
+    tools:context=".OnGoingMessageActivity" >
+
+    <ListView
+        android:id="@+id/onGoingList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.01" />
 
     <TableRow
-        android:id="@+id/tableRow1"
+        android:id="@+id/tableRow1OnG"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" >
-
-        <ImageView
-            android:id="@+id/imageView1"
-            android:layout_width="143dp"
-            android:layout_height="76dp"
-            android:contentDescription="@string/to"
-            android:src="@drawable/textbubble" />
-
-        <EditText
-            android:id="@+id/to"
-            android:layout_width="wrap_content"
-            android:layout_height="76dp"
-            android:ems="15"
-            android:hint="@string/to"
-            android:inputType="text"
-            android:textColor="#FFFFFF" >
-
-            <requestFocus android:layout_width="match_parent" />
-
-        </EditText>
     </TableRow>
 
     <EditText
-       android:id="@+id/message"
+        android:id="@+id/messageOnG"
         android:layout_width="wrap_content"
-        android:layout_height="250dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_marginLeft="3dip"
         android:layout_marginRight="2dip"
+        android:layout_weight="0.06"
         android:gravity="bottom"
         android:hint="@string/message"
         android:paddingBottom="9dip"
@@ -51,38 +38,37 @@
         android:orientation="horizontal" >
 
         <Button
-            android:id="@+id/discard"
+            android:id="@+id/discardOnG"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="top"
             android:background="@drawable/round_button"
+            android:gravity="top"
             android:onClick="discard"
             android:text="@string/discard"
             android:textColor="#000000" />
 
         <Button
-            android:id="@+id/events"
+            android:id="@+id/eventsOnG"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="top"
             android:background="@drawable/round_button"
+            android:gravity="top"
             android:onClick="events"
             android:text="@string/events"
             android:textColor="#000000" />
 
         <Button
-            android:id="@+id/send"
+            android:id="@+id/sendOnG"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="top"
             android:layout_weight="1"
             android:background="@drawable/round_button"
+            android:gravity="top"
             android:onClick="sendMessage"
             android:text="@string/send"
             android:textColor="#000000" />
-
     </LinearLayout>
 
 </TableLayout>
