@@ -58,9 +58,6 @@ public class NewMessageActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	public void discard(View view){
-		
-	}
 	public void sendMessage(View view){
 		String msgSent ="Message Sent!";
 		String msgDelivered = "Message Delivered";
@@ -83,13 +80,13 @@ public class NewMessageActivity extends Activity {
 				switch(getResultCode())
 				{
 				case Activity.RESULT_OK:
-					Toast.makeText(NewMessageActivity.this,"Dispatch Sent!",Toast.LENGTH_LONG).show();
+					Toast.makeText(NewMessageActivity.this,"SMS sent",Toast.LENGTH_LONG).show();
 					break;
 				case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-					Toast.makeText(getBaseContext(),"GENERIC FAILURE!",Toast.LENGTH_LONG).show();
+					Toast.makeText(getBaseContext(),"GENERIC FAILURE",Toast.LENGTH_LONG).show();
 					break;
 				case SmsManager.RESULT_ERROR_NO_SERVICE:
-					Toast.makeText(getBaseContext(),"NO SERVICE!",Toast.LENGTH_LONG).show();
+					Toast.makeText(getBaseContext(),"NO SERVICE",Toast.LENGTH_LONG).show();
 					break;
 				}
 			}
@@ -103,10 +100,10 @@ public class NewMessageActivity extends Activity {
 				switch(getResultCode())
 				{
 				case Activity.RESULT_OK:
-					Toast.makeText(getBaseContext(),"Dispatch Delivered!",Toast.LENGTH_LONG).show();
+					Toast.makeText(getBaseContext(),"SMS Delivered",Toast.LENGTH_LONG).show();
 					break;
 				case Activity.RESULT_CANCELED:
-					Toast.makeText(getBaseContext(),"Dispatch NOT Delivered!",Toast.LENGTH_LONG).show();
+					Toast.makeText(getBaseContext(),"SMS NOT Delivered",Toast.LENGTH_LONG).show();
 					break;
 				}
 			}
