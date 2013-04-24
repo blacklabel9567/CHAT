@@ -1,10 +1,13 @@
 package edu.ncc.chats;
 
-
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
-import android.os.Bundle;
+
+
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
@@ -13,33 +16,62 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
+import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.telephony.SmsManager;
+import android.text.format.DateFormat;
+import android.text.format.Time;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 
-public class NewMessageActivity extends Activity {
+public class OnGoingMessage extends Activity {
+
 	protected EditText txtPhoneNo;
-	protected EditText txtMessage;
-	protected List<String> messageList;
-	protected List<String> numberList;
 	protected Bundle b;
-	String tempNumber;
+	protected EditText txtMessage;
 	String theNumber;
 	String theMessage;
+	View v;
+	List<String> onGoingList = new ArrayList<String>();
 	private BroadcastReceiver send;
 	private BroadcastReceiver deliver;
+	
+	//Intent filter to listen for incoming msgs	
+	IntentFilter intentFilter;
+	//receiver to handle incomong msgs
+	private BroadcastReceiver intentReceiver = new BroadcastReceiver(){
+		@Override
+		public void onReceive(Context arg0, Intent arg1)
+		{
+			//display the mesg in the textview
+			//TextView inText = (TextView)findViewById(R.id.messageOnG);
+			//inText.setText(arg1.getExtras().getString("sms"));
+			theMessage =(String)arg1.getExtras().getString("sms");
+			theMessage = theMessage.substring(25);
+			onGoingList.add(theMessage);
+			displayListView();
+		}
+	};
 	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_new_message);
+		setContentView(R.layout.activity_ongoing_message);
 		
-		send = new BroadcastReceiver(){
+		//intent to filter for SMS messages received
+        intentFilter = new IntentFilter();
+        intentFilter.addAction("SMS_RECEIVED_ACTION");
+		
+        
+        send = new BroadcastReceiver(){
 
 			@Override
 			public void onReceive(Context context, Intent intent) {
@@ -47,7 +79,7 @@ public class NewMessageActivity extends Activity {
 				switch(getResultCode())
 				{
 				case Activity.RESULT_OK:
-					Toast.makeText(NewMessageActivity.this,"Dispatch Sent!",Toast.LENGTH_LONG).show();
+					Toast.makeText(OnGoingMessage.this,"Dispatch Sent!",Toast.LENGTH_LONG).show();
 					break;
 				case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
 					Toast.makeText(getBaseContext(),"GENERIC FAILURE!",Toast.LENGTH_LONG).show();
@@ -76,35 +108,47 @@ public class NewMessageActivity extends Activity {
 			}
 		};
 		
+		onGoingList = getIntent().getStringArrayListExtra("msgList");
+		theNumber = getIntent().getStringExtra("onGoNumber");
+		theMessage = getIntent().getStringExtra("onGoMessage");
+		txtMessage = (EditText)findViewById(R.id.messageOnG);
 		// Show the Up button in the action bar.
-		setupActionBar();
-		b = this.getIntent().getExtras();
-		
-		txtPhoneNo = (EditText)findViewById(R.id.to);
-		txtMessage = (EditText)findViewById(R.id.message);
-		messageList = new ArrayList<String>();
-		numberList = getIntent().getStringArrayListExtra("numList");
+				setupActionBar();
+		displayListView();
 
 
 	}
-
-	/**
-	 * Set up the {@link android.app.ActionBar}.
-	 */
+	
+	private void displayListView() {
+   	 
+  	  
+ 	   
+  	  //create an ArrayAdapter from the String Array
+  	  ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
+  	    R.layout.ongoing_message_list, onGoingList);
+  	  ListView listView = (ListView) findViewById(R.id.onGoingList);
+  	  // Assign adapter to ListView
+  	  listView.setAdapter(dataAdapter);
+  	   
+  	  //enables filtering for the contents of the given ListView
+  	  listView.setTextFilterEnabled(true);
+  	 
+  	  listView.setOnItemClickListener(new OnItemClickListener() {
+  	   public void onItemClick(AdapterView<?> parent, View view,
+  	     int position, long id) {
+  	       // When clicked, start a new activity with a single conversation chat
+  	    
+  	   }
+  	  });
+  	   
+  	 }
+	
 	private void setupActionBar() {
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);
 
 	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.new_message, menu);
-		return true;
-	}
-
-	@Override
+	
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
@@ -123,43 +167,32 @@ public class NewMessageActivity extends Activity {
 
 	public void sendMessage(View view){
 
-		theNumber = txtPhoneNo.getText().toString();
+		
 		theMessage = txtMessage.getText().toString();
 
 		StringTokenizer st = new StringTokenizer(theNumber,",");
 		while (st.hasMoreElements())
 		{
-			tempNumber = (String)st.nextElement();
+			String tempNumber = (String)st.nextElement();
 			if(tempNumber.length()>0 && theMessage.trim().length()>0) {
-				messageList.add(tempNumber);
+				Time now = new Time();
+				now.setToNow();
+				onGoingList.add(theMessage + "\n" + now.toString());
 				sendSMS(tempNumber, theMessage);
 			}
 			else {
 				Toast.makeText(getBaseContext(), 
-						"Please enter both the phone number and the message.", 
+						"Please enter the message.", 
 						Toast.LENGTH_SHORT).show();
 			}
 		}
-		b = new Bundle();
-
-		b.putString("message", theMessage);
-		b.putString("number", theNumber);
-		b.putStringArrayList("mList", (ArrayList<String>) messageList);
-		b.putStringArrayList("nList", (ArrayList<String>) numberList);
-
-		this.getIntent().putExtras(b);
-		this.setResult(RESULT_OK, getIntent());
-		finish();
 		
-		
-		/*Bundle b = new Bundle();
-    	Intent intent = new Intent(this, OnGoingMessage.class);
-    	intent.putExtras(b); // put the bundle into the intent
-		startActivityForResult(intent, 0);*/
+		displayListView();
+		txtMessage.setText("");
 	}//end sendMessage
 
 		private void sendSMS(String number, String message){
-			String msgSent ="SMS_SENT";
+			String msgSent ="Message Sent!";
 			String msgDelivered = "Message Delivered";
 
 			PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(msgSent), 0);
@@ -178,8 +211,8 @@ public class NewMessageActivity extends Activity {
 			sms.sendTextMessage(number, null, message, sentPI, deliveredPI);
 			
 		}//end sendSMS
-		
-		
+	
+
 	public void discard(View view) {
 		//without using a dialog prompt
 		//Intent intent = new Intent();
@@ -188,7 +221,7 @@ public class NewMessageActivity extends Activity {
 
 		{
 			//making sure the user wants to discard the message
-			AlertDialog.Builder alertDialog = new AlertDialog.Builder(NewMessageActivity.this);
+			AlertDialog.Builder alertDialog = new AlertDialog.Builder(OnGoingMessage.this);
 			alertDialog.setTitle(R.string.discardPrompt);
 			alertDialog.setPositiveButton("No", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
@@ -208,14 +241,29 @@ public class NewMessageActivity extends Activity {
 		}
 	}
 
-	public void onStop(){
+		
+	//receiver that listens for incoming msgs while in
+    //the onResume state
+	@Override
+    protected void onResume(){
+    	//register the receiver
+    	registerReceiver(intentReceiver,intentFilter);
+    	super.onResume();
+    }
+    @Override
+    protected void  onPause(){
+    	//unregister the receiver
+    	unregisterReceiver(intentReceiver);
+    	super.onPause();
+    	}
+    public void onStop(){
 		super.onStop();
 		unregisterReceiver(send);
 		unregisterReceiver(deliver);
 	}
-
+    
 	public void events(View view){
-    	Intent intent = new Intent(NewMessageActivity.this, Events.class);
+    	Intent intent = new Intent(OnGoingMessage.this, Events.class);
     	startActivity(intent);
     }//end events 
 }
