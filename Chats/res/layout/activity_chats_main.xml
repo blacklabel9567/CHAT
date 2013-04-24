@@ -1,51 +1,41 @@
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:tools="http://schemas.android.com/tools"
-      android:id="@+id/RelativeLayout"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:background="#000000"
-      android:paddingTop="@dimen/activity_vertical_margin"
-      tools:context=".ChatsMain" >
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:id="@+id/RelativeLayout"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".ChatsMain" >
 
-      <TextView
-          android:id="@+id/title"
-          android:layout_width="fill_parent"
-          android:layout_height="wrap_content"
-          android:gravity="top"
-          android:layout_alignTop="@id/RelativeLayout"
-          android:background="#52cc29"
-          android:text="@string/chat"
-          android:textColor="#FFFFFF" />
+   <TextView
+        android:id="@+id/title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#52cc29"
+        android:text="@string/chat"
+        android:layout_alignTop="@id/RelativeLayout"
+        android:textColor="#FFFFFF" />
 
-      <Button
-          android:id="@+id/new_message"
-          android:layout_width="match_parent"
-          android:layout_height="100dp"
-          android:gravity="top"
-          android:layout_below="@id/title"
-          android:background="@drawable/round_button"
-          android:onClick="newMessage"
-          android:text="@string/new_message" />
+    <Button
+        android:id="@+id/new_message"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:text="@string/new_message"
+        android:layout_below="@id/title" 
+        android:background="@drawable/round_button"
+        android:onClick="newMessage"/>
 
-      <ListView
-          android:id="@+id/listView1"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:gravity="top"
-          android:layout_above="@+id/button1"
-          android:text="LISTTTTT"
-          android:textColor="#FFFFFF"
-          android:layout_below="@id/new_message" />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/new_message" >
 
-      <Button
-          android:id="@+id/button1"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_alignParentBottom="true"
-          android:gravity="top"
-          android:layout_alignParentLeft="true"
-          android:background="@drawable/round_button"
-          android:drawableLeft="@drawable/contact"
-          android:text="Sample Contact" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/contact"
+            android:background="@drawable/round_button"
+            android:text="Sample Contact" />
+    </LinearLayout>
 
-  </RelativeLayout>
+</RelativeLayout>

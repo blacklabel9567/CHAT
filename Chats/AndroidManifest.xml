@@ -7,9 +7,8 @@
     <uses-sdk
         android:minSdkVersion="16"
         android:targetSdkVersion="17" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
 
     <application
         android:allowBackup="true"
@@ -32,26 +31,6 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ncc.edu.Chats.ChatsMain" />
-        </activity>
-        <activity
-            android:name="edu.ncc.chats.OnGoingMessage"
-            android:label="@string/title_activity_on_going_message"
-            android:parentActivityName="ncc.edu.Chats.ChatsMain" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="ncc.edu.Chats.ChatsMain" />
-        </activity>
-        <receiver android:name="edu.ncc.chats.SMSReceiver"> 
-            <intent-filter> 
-                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
-                 
-            </intent-filter> 
-        </receiver>
-        <activity
-            android:name="edu.ncc.chats.Events"
-            android:label="@string/title_events"
-            android:parentActivityName="edu.ncc.chats.NewMessageActivity" >
-            
         </activity>
     </application>
 

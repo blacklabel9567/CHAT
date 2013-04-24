@@ -7,20 +7,14 @@ import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.widget.Toast;
 
-
-//I think/know the problem is that this is not getting executed
-//not sure why be because the manifest is set up to listen for 
-//this receiver.
 public class SMSReceiver extends BroadcastReceiver {
 
 	@Override
-	public void onReceive(Context arg0, Intent arg1) {
+	public void onReceive(Context context, Intent intent) {
 		//get message passed in
-		Bundle bundle = arg1.getExtras();
+		Bundle bundle = intent.getExtras();
 		SmsMessage[] messages = null;
 		String str = "";
-		
-		
 		if(bundle != null)
 		{
 			Object[] pdus = (Object[]) bundle.get("pdus");
@@ -34,13 +28,7 @@ public class SMSReceiver extends BroadcastReceiver {
 				str += "\n";
 			}
 			//display the message
-			Toast.makeText(arg0, str, Toast.LENGTH_LONG).show();
-			
-			//send a broad cast Intent to update the SMS receiver in the in ongoing/and main
-            Intent broadcastIntent = new Intent();
-            broadcastIntent.setAction("SMS_RECEIVED_ACTION");
-            broadcastIntent.putExtra("sms",str);
-            arg0.sendBroadcast(broadcastIntent);
+			Toast.makeText(context, str, Toast.LENGTH_LONG).show();
 		}
 
 	}

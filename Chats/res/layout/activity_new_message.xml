@@ -23,66 +23,44 @@
             android:layout_width="wrap_content"
             android:layout_height="76dp"
             android:ems="15"
-            android:hint="@string/to"
             android:inputType="text"
-            android:textColor="#FFFFFF" >
+            android:hint="@string/to"
+            android:textColor="#FFFFFF">
+            
 
-            <requestFocus android:layout_width="match_parent" />
-
+            <requestFocus />
         </EditText>
     </TableRow>
 
     <EditText
-       android:id="@+id/message"
-        android:layout_width="wrap_content"
-        android:layout_height="250dp"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="3dip"
-        android:layout_marginRight="2dip"
-        android:gravity="bottom"
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="506dp"
+        android:layout_gravity="center_horizontal|top"
+        android:layout_weight="0.52"
+        android:ems="15"
+        android:inputType="text"
         android:hint="@string/message"
-        android:paddingBottom="9dip"
-        android:textColor="#FFFFFF"
-        android:textSize="28sp" />
-
-    <LinearLayout
+        android:textColor="#FFFFFF"/>
+    <TableRow
+        android:id="@+id/tableRow3"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/discard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:id="@+id/clear"
             android:layout_weight="1"
-            android:gravity="top"
             android:background="@drawable/round_button"
-            android:onClick="discard"
-            android:text="@string/discard"
-            android:textColor="#000000" />
-
-        <Button
-            android:id="@+id/events"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="top"
-            android:background="@drawable/round_button"
-            android:onClick="events"
-            android:text="@string/events"
+            android:text="@string/clear"
             android:textColor="#000000" />
 
         <Button
             android:id="@+id/send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="top"
             android:layout_weight="1"
-            android:background="@drawable/round_button"
-            android:onClick="sendMessage"
             android:text="@string/send"
-            android:textColor="#000000" />
-
-    </LinearLayout>
+            android:background="@drawable/round_button"
+            android:textColor="#000000"
+            android:onClick="sendMessage" />
+    </TableRow>
 
 </TableLayout>
