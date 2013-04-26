@@ -2,7 +2,8 @@ package edu.ncc.chats;
 
 import java.util.ArrayList;
 import java.util.List;
-import android.app.Activity;
+
+import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,13 +11,11 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 
-public class ChatsMain extends Activity {
+public class ChatsMain extends ListActivity {
 
 	List<String> messageList = new ArrayList<String>();
 	List<String> numberList = new ArrayList<String>();
@@ -24,6 +23,12 @@ public class ChatsMain extends Activity {
 	String number = new String();
 	List<String> tempList = new ArrayList<String>();
 	
+	private static String[] projection = { MessageDBHelper._ID, MessageDBHelper.NAME, MessageDBHelper.MESSAGE,};
+	private static String orderBy = MessageDBHelper.NAME;
+
+	private MessageDataSource datasource;
+	ArrayAdapter<MessageEntry> adapter;
+	List<MessageEntry> values;
 	
 //Intent filter to listen for incoming msgs	
 IntentFilter intentFilter;
@@ -43,11 +48,14 @@ IntentFilter intentFilter;
 			message = (String) arg1.getExtras().getString("sms");
 			message = (String) message.substring(25);
 			
-			messageList.add(message);
-			if(!numberList.contains((String)number))
-				numberList.add(number);
+			displayListView(number,message);
 			
-			displayListView();
+			
+//			messageList.add(message);
+//			if(!numberList.contains((String)number))
+//				numberList.add(number);
+//			
+//			displayListView();
 		}
 	};
 	
@@ -57,9 +65,18 @@ IntentFilter intentFilter;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chats_main);
-          
-      //intent to filter for SMS messages received
-        intentFilter = new IntentFilter();
+        
+        datasource = new MessageDataSource(this);
+		datasource.open();
+		
+		values = datasource.getAllMessages();
+	
+		adapter = new ArrayAdapter<MessageEntry>(this,android.R.layout.simple_list_item_1, values);
+		setListAdapter(adapter);
+
+		
+		
+		intentFilter = new IntentFilter();
         intentFilter.addAction("SMS_RECEIVED_ACTION");
              
         //Generate list View from ArrayList
@@ -105,27 +122,25 @@ IntentFilter intentFilter;
     
    
 
-    private void displayListView() {
-    	 
-    	  
-    	   
-    	  //create an ArrayAdaptar from the String Array
-    	  ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-    	    R.layout.message_list, numberList);
-    	  ListView listView = (ListView) findViewById(R.id.listView1);
-    	  // Assign adapter to ListView
-    	  listView.setAdapter(dataAdapter);
-    	   
-    	  //enables filtering for the contents of the given ListView
-    	  listView.setTextFilterEnabled(true);
-    	 
-    	  listView.setOnItemClickListener(new OnItemClickListener() {
-    	   public void onItemClick(AdapterView<?> parent, View view,
-    	     int position, long id) {
-    	       // When clicked, start a new activity with a single conversation chat
-    	    onGoingMessage(view);
-    	   }
-    	  });
+    private void displayListView(String num, String msg) {
+    	MessageEntry entry = datasource.addMessage(number, message);
+		adapter.add(entry);
+
+		////******Needs this to get the view to call the setOnClick****
+		ListView list =  (ListView) adapter.getView(1,this, values);
+
+		
+		
+		//    	  
+//    	   
+//    	  
+//    	  listView.setOnItemClickListener(new OnItemClickListener() {
+//    	   public void onItemClick(AdapterView<?> parent, View view,
+//    	     int position, long id) {
+//    	       // When clicked, start a new activity with a single conversation chat
+//    	    onGoingMessage(view);
+//    	   }
+//    	  });
     	   
     	 }
     	
@@ -180,7 +195,7 @@ IntentFilter intentFilter;
 				else
 					numberList.add((String)tempList.remove(ctr).substring(0, 10));
 			}
-			displayListView();
+		//	displayListView();
 			
 		
 	}
