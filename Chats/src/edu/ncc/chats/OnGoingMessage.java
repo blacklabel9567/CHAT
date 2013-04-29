@@ -50,9 +50,7 @@ public class OnGoingMessage extends Activity {
 		@Override
 		public void onReceive(Context arg0, Intent arg1)
 		{
-			//display the mesg in the textview
-			//TextView inText = (TextView)findViewById(R.id.messageOnG);
-			//inText.setText(arg1.getExtras().getString("sms"));
+			
 			theMessage =(String)arg1.getExtras().getString("sms");
 			theMessage = theMessage.substring(25);
 			onGoingList.add(theMessage);
@@ -175,9 +173,7 @@ public class OnGoingMessage extends Activity {
 		{
 			String tempNumber = (String)st.nextElement();
 			if(tempNumber.length()>0 && theMessage.trim().length()>0) {
-				Time now = new Time();
-				now.setToNow();
-				onGoingList.add(theMessage + "\n" + now.toString());
+				onGoingList.add("Me : " + theMessage);
 				sendSMS(tempNumber, theMessage);
 			}
 			else {

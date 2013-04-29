@@ -28,24 +28,12 @@
           android:text="@string/new_message" />
 
       <ListView
-          android:id="@+id/listView1"
+          android:id="@+id/listView"
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:gravity="top"
-          android:layout_above="@+id/button1"
-          android:text="LISTTTTT"
-          android:textColor="#FFFFFF"
           android:layout_below="@id/new_message" />
 
-      <Button
-          android:id="@+id/button1"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_alignParentBottom="true"
-          android:gravity="top"
-          android:layout_alignParentLeft="true"
-          android:background="@drawable/round_button"
-          android:drawableLeft="@drawable/contact"
-          android:text="Sample Contact" />
+     
 
   </RelativeLayout>

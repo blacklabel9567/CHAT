@@ -31,7 +31,7 @@ public class NewMessageActivity extends Activity {
 	String theNumber;
 	String theMessage;
 	private BroadcastReceiver send;
-	private BroadcastReceiver deliver;
+	
 	
 	
 	@Override
@@ -59,22 +59,6 @@ public class NewMessageActivity extends Activity {
 			}
 		};
 		
-		deliver = new BroadcastReceiver()
-		{
-			@Override
-			public void onReceive(Context context, Intent intent) {
-
-				switch(getResultCode())
-				{
-				case Activity.RESULT_OK:
-					Toast.makeText(getBaseContext(),"Dispatch Delivered!",Toast.LENGTH_LONG).show();
-					break;
-				case Activity.RESULT_CANCELED:
-					Toast.makeText(getBaseContext(),"Dispatch NOT Delivered!",Toast.LENGTH_LONG).show();
-					break;
-				}
-			}
-		};
 		
 		// Show the Up button in the action bar.
 		setupActionBar();
@@ -141,21 +125,14 @@ public class NewMessageActivity extends Activity {
 			}
 		}
 		b = new Bundle();
-
 		b.putString("message", theMessage);
-		b.putString("number", theNumber);
-		b.putStringArrayList("mList", (ArrayList<String>) messageList);
+//		b.putString("number", theNumber);
+//		b.putStringArrayList("mList", (ArrayList<String>) messageList);
 		b.putStringArrayList("nList", (ArrayList<String>) numberList);
-
 		this.getIntent().putExtras(b);
 		this.setResult(RESULT_OK, getIntent());
 		finish();
-		
-		
-		/*Bundle b = new Bundle();
-    	Intent intent = new Intent(this, OnGoingMessage.class);
-    	intent.putExtras(b); // put the bundle into the intent
-		startActivityForResult(intent, 0);*/
+	
 	}//end sendMessage
 
 		private void sendSMS(String number, String message){
@@ -163,19 +140,16 @@ public class NewMessageActivity extends Activity {
 			String msgDelivered = "Message Delivered";
 
 			PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(msgSent), 0);
-			PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(msgDelivered), 0);
+		
 
-
+			
+			
 			registerReceiver(send,new  IntentFilter(msgSent));//end registerReciever
-
-			registerReceiver(deliver,new  IntentFilter(msgDelivered));//end registerReciever
-
-
 
 
 
 			SmsManager sms = SmsManager.getDefault();
-			sms.sendTextMessage(number, null, message, sentPI, deliveredPI);
+			sms.sendTextMessage(number, null, message, sentPI,null);
 			
 		}//end sendSMS
 		
@@ -211,7 +185,7 @@ public class NewMessageActivity extends Activity {
 	public void onStop(){
 		super.onStop();
 		unregisterReceiver(send);
-		unregisterReceiver(deliver);
+		
 	}
 
 	public void events(View view){
