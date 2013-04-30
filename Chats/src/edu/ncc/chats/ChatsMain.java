@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +28,7 @@ public class ChatsMain extends Activity {
 
 
 	private UserDataSource datasource;
-	private 
+
 	ArrayAdapter<UserEntry> adapter;
 	List<UserEntry> values;
 
@@ -45,14 +44,14 @@ public class ChatsMain extends Activity {
 		{
 			number = (String) arg1.getExtras().getString("sms");
 			//if using an emulator to test use this line of code
-			number = (String) number.substring(20, 24);
-			
+			//number = (String) number.substring(13, message.indexOf(":"));
+
 			//if using a regular phone use this line of code
 			//number = (String) number.substring(13, 23);
-			
-			
+
+
 			message = (String) arg1.getExtras().getString("sms");
-			message = (String) message.substring(25);
+			message = (String) message.substring(message.indexOf(":"));
 
 			datasource.addMessage(number, message);
 			numberList.add(number);
@@ -129,15 +128,7 @@ public class ChatsMain extends Activity {
 
 		values = datasource.getAllMessages();
 		adapter = new ArrayAdapter<UserEntry>(this,R.layout.message_list, values);
-		//setListAdapter(adapter);
 
-
-
-		//MessageEntry entry = datasource.addMessage(number, message);
-		//adapter.add(entry);
-
-		////******Needs this to get the view to call the setOnClick****
-		//ListView list =  (ListView) adapter.getView(1,this, values);
 		ListView listView = (ListView) findViewById(R.id.listView);
 		listView.setAdapter(adapter);
 
@@ -148,7 +139,7 @@ public class ChatsMain extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				// When clicked, start a new activity with a single conversation chat
-				onGoingMessage(view);
+				onGoingMessage(view,id);
 			}
 		});
 
@@ -156,13 +147,17 @@ public class ChatsMain extends Activity {
 
 
 
-	public void onGoingMessage(View view){
+	public void onGoingMessage(View view,long id){
 		Bundle b = new Bundle();
 		Intent intent = new Intent(this, OnGoingMessage.class);
 		intent.putExtras(b); // put the bundle into the intent
 		intent.putExtra("onGoMessage", message);
-		intent.putStringArrayListExtra("msgList", (ArrayList<String>)messageList);
+		//setting up the id value for cid
+		intent.putExtra("cid", String.valueOf(id));
+		//setting up the number to be passed
 		intent.putExtra("onGoNumber", ((TextView) view).getText().toString());
+		//setting up the Name to be passed
+		///intent.putExtra("name", dat)
 		startActivity(intent); 
 	}
 
@@ -191,27 +186,20 @@ public class ChatsMain extends Activity {
 
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-		Bundle b = data.getExtras();
-		message = b.getString("message");
-//		messageList.add(message);
-		numberList = b.getStringArrayList("nList");
-//		tempList = b.getStringArrayList("mList");
-		int ctr = 0;
-		datasource.addMessage(number,message);
-//		while(!tempList.isEmpty())
-//		{
-//			if(numberList.contains((String)tempList.get(ctr).substring(0, 10))){
-//				number = tempList.remove(ctr);
-//				datasource.addMessage(number, message);
-//			}
-//			else{
-//				numberList.add((String)tempList.remove(ctr).substring(0, 10));
-//				datasource.addMessage(number,message);
-//			}
-//				
-//		}
-		displayListView();
-
+		switch (resultCode) {
+		
+		case RESULT_CANCELED:
+			break;
+		case RESULT_OK:
+			Bundle b = data.getExtras();
+			message = b.getString("message");
+			numberList = b.getStringArrayList("nList");
+			number = numberList.remove(numberList.size()-1);
+			datasource.addMessage(number,message);
+			displayListView();
+		default :
+			break;
+		}
 
 	}
 

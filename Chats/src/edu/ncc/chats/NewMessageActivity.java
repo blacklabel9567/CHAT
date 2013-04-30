@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.support.v4.app.NavUtils;
 import android.telephony.SmsManager;
 
 public class NewMessageActivity extends Activity {
@@ -39,25 +38,6 @@ public class NewMessageActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_new_message);
 		
-		send = new BroadcastReceiver(){
-
-			@Override
-			public void onReceive(Context context, Intent intent) {
-
-				switch(getResultCode())
-				{
-				case Activity.RESULT_OK:
-					Toast.makeText(NewMessageActivity.this,"Dispatch Sent!",Toast.LENGTH_LONG).show();
-					break;
-				case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-					Toast.makeText(getBaseContext(),"GENERIC FAILURE!",Toast.LENGTH_LONG).show();
-					break;
-				case SmsManager.RESULT_ERROR_NO_SERVICE:
-					Toast.makeText(getBaseContext(),"NO SERVICE!",Toast.LENGTH_LONG).show();
-					break;
-				}
-			}
-		};
 		
 		
 		// Show the Up button in the action bar.
@@ -92,14 +72,7 @@ public class NewMessageActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			// This ID represents the Home or Up button. In the case of this
-			// activity, the Up button is shown. Use NavUtils to allow users
-			// to navigate up one level in the application structure. For
-			// more details, see the Navigation pattern on Android Design:
-			//
-			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-			//
-			NavUtils.navigateUpFromSameTask(this);
+			finish();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -115,7 +88,7 @@ public class NewMessageActivity extends Activity {
 		{
 			tempNumber = (String)st.nextElement();
 			if(tempNumber.length()>0 && theMessage.trim().length()>0) {
-				messageList.add(tempNumber);
+				numberList.add(tempNumber);
 				sendSMS(tempNumber, theMessage);
 			}
 			else {
@@ -124,6 +97,7 @@ public class NewMessageActivity extends Activity {
 						Toast.LENGTH_SHORT).show();
 			}
 		}
+		unregisterReceiver(send);
 		b = new Bundle();
 		b.putString("message", theMessage);
 //		b.putString("number", theNumber);
@@ -137,11 +111,30 @@ public class NewMessageActivity extends Activity {
 
 		private void sendSMS(String number, String message){
 			String msgSent ="SMS_SENT";
-			String msgDelivered = "Message Delivered";
+			//String msgDelivered = "Message Delivered";
 
 			PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(msgSent), 0);
 		
 
+			send = new BroadcastReceiver(){
+
+				@Override
+				public void onReceive(Context context, Intent intent) {
+
+					switch(getResultCode())
+					{
+					case Activity.RESULT_OK:
+						Toast.makeText(NewMessageActivity.this,"Dispatch Sent!",Toast.LENGTH_LONG).show();
+						break;
+					case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+						Toast.makeText(getBaseContext(),"GENERIC FAILURE!",Toast.LENGTH_LONG).show();
+						break;
+					case SmsManager.RESULT_ERROR_NO_SERVICE:
+						Toast.makeText(getBaseContext(),"NO SERVICE!",Toast.LENGTH_LONG).show();
+						break;
+					}
+				}
+			};
 			
 			
 			registerReceiver(send,new  IntentFilter(msgSent));//end registerReciever
@@ -150,15 +143,11 @@ public class NewMessageActivity extends Activity {
 
 			SmsManager sms = SmsManager.getDefault();
 			sms.sendTextMessage(number, null, message, sentPI,null);
-			
 		}//end sendSMS
 		
 		
 	public void discard(View view) {
-		//without using a dialog prompt
-		//Intent intent = new Intent();
-		//setResult(RESULT_OK, intent);
-		//finish();
+	
 
 		{
 			//making sure the user wants to discard the message
@@ -172,6 +161,7 @@ public class NewMessageActivity extends Activity {
 			});
 			alertDialog.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
+					setResult(RESULT_CANCELED, getIntent());
 					finish();
 					Toast.makeText(getBaseContext(),"Dispatch has been discarded.",Toast.LENGTH_LONG).show();
 				}
@@ -184,12 +174,25 @@ public class NewMessageActivity extends Activity {
 
 	public void onStop(){
 		super.onStop();
-		unregisterReceiver(send);
+		
+		
+	}
+	
+	public void onPause(){
+		super.onPause();
+		//unregisterReceiver(send);
 		
 	}
 
 	public void events(View view){
     	Intent intent = new Intent(NewMessageActivity.this, Events.class);
-    	startActivity(intent);
+    	startActivityForResult(intent, 0);
     }//end events 
+	
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		//put stuff that gets returned from events here
+		Bundle b = data.getExtras();
+		theMessage = b.getString("result");
+		txtMessage.setText(theMessage);
+	}
 }

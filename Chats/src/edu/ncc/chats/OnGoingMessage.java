@@ -1,8 +1,6 @@
 package edu.ncc.chats;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -17,17 +15,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.telephony.SmsManager;
-import android.text.format.DateFormat;
-import android.text.format.Time;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -45,14 +39,14 @@ public class OnGoingMessage extends Activity {
 	
 	//Intent filter to listen for incoming msgs	
 	IntentFilter intentFilter;
-	//receiver to handle incomong msgs
+	//receiver to handle incoming msgs
 	private BroadcastReceiver intentReceiver = new BroadcastReceiver(){
 		@Override
 		public void onReceive(Context arg0, Intent arg1)
 		{
 			
 			theMessage =(String)arg1.getExtras().getString("sms");
-			theMessage = theMessage.substring(25);
+			//theMessage = theMessage.substring(25);
 			onGoingList.add(theMessage);
 			displayListView();
 		}
@@ -67,44 +61,7 @@ public class OnGoingMessage extends Activity {
 		//intent to filter for SMS messages received
         intentFilter = new IntentFilter();
         intentFilter.addAction("SMS_RECEIVED_ACTION");
-		
-        
-        send = new BroadcastReceiver(){
 
-			@Override
-			public void onReceive(Context context, Intent intent) {
-
-				switch(getResultCode())
-				{
-				case Activity.RESULT_OK:
-					Toast.makeText(OnGoingMessage.this,"Dispatch Sent!",Toast.LENGTH_LONG).show();
-					break;
-				case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-					Toast.makeText(getBaseContext(),"GENERIC FAILURE!",Toast.LENGTH_LONG).show();
-					break;
-				case SmsManager.RESULT_ERROR_NO_SERVICE:
-					Toast.makeText(getBaseContext(),"NO SERVICE!",Toast.LENGTH_LONG).show();
-					break;
-				}
-			}
-		};
-		
-		deliver = new BroadcastReceiver()
-		{
-			@Override
-			public void onReceive(Context context, Intent intent) {
-
-				switch(getResultCode())
-				{
-				case Activity.RESULT_OK:
-					Toast.makeText(getBaseContext(),"Dispatch Delivered!",Toast.LENGTH_LONG).show();
-					break;
-				case Activity.RESULT_CANCELED:
-					Toast.makeText(getBaseContext(),"Dispatch NOT Delivered!",Toast.LENGTH_LONG).show();
-					break;
-				}
-			}
-		};
 		
 		onGoingList = getIntent().getStringArrayListExtra("msgList");
 		theNumber = getIntent().getStringExtra("onGoNumber");
@@ -150,14 +107,7 @@ public class OnGoingMessage extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			// This ID represents the Home or Up button. In the case of this
-			// activity, the Up button is shown. Use NavUtils to allow users
-			// to navigate up one level in the application structure. For
-			// more details, see the Navigation pattern on Android Design:
-			//
-			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-			//
-			NavUtils.navigateUpFromSameTask(this);
+			finish();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -184,7 +134,9 @@ public class OnGoingMessage extends Activity {
 		}
 		
 		displayListView();
-		txtMessage.setText("");
+		txtMessage.setText(""); 
+		unregisterReceiver(send);
+		unregisterReceiver(deliver);
 	}//end sendMessage
 
 		private void sendSMS(String number, String message){
@@ -194,9 +146,46 @@ public class OnGoingMessage extends Activity {
 			PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(msgSent), 0);
 			PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(msgDelivered), 0);
 
+			send = new BroadcastReceiver(){
 
+				@Override
+				public void onReceive(Context context, Intent intent) {
+
+					switch(getResultCode())
+					{
+					case Activity.RESULT_OK:
+						Toast.makeText(OnGoingMessage.this,"Dispatch Sent!",Toast.LENGTH_LONG).show();
+						break;
+					case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+						Toast.makeText(getBaseContext(),"GENERIC FAILURE!",Toast.LENGTH_LONG).show();
+						break;
+					case SmsManager.RESULT_ERROR_NO_SERVICE:
+						Toast.makeText(getBaseContext(),"NO SERVICE!",Toast.LENGTH_LONG).show();
+						break;
+					}
+				}
+			};
+
+			
 			registerReceiver(send,new  IntentFilter(msgSent));//end registerReciever
 
+			deliver = new BroadcastReceiver()
+			{
+				@Override
+				public void onReceive(Context context, Intent intent) {
+
+					switch(getResultCode())
+					{
+					case Activity.RESULT_OK:
+						Toast.makeText(getBaseContext(),"Dispatch Delivered!",Toast.LENGTH_LONG).show();
+						break;
+					case Activity.RESULT_CANCELED:
+						Toast.makeText(getBaseContext(),"Dispatch NOT Delivered!",Toast.LENGTH_LONG).show();
+						break;
+					}
+				}
+			};
+			
 			registerReceiver(deliver,new  IntentFilter(msgDelivered));//end registerReciever
 
 
@@ -254,12 +243,18 @@ public class OnGoingMessage extends Activity {
     	}
     public void onStop(){
 		super.onStop();
-		unregisterReceiver(send);
 		unregisterReceiver(deliver);
 	}
     
 	public void events(View view){
     	Intent intent = new Intent(OnGoingMessage.this, Events.class);
-    	startActivity(intent);
+    	startActivityForResult(intent, 0);
     }//end events 
+	
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		//put stuff that gets returned from events here
+		Bundle b = data.getExtras();
+		theMessage = b.getString("result");
+		txtMessage.setText(theMessage);
+	}
 }
