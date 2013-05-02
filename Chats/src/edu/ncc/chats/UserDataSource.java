@@ -55,20 +55,29 @@ public class UserDataSource {
 	public long checkEntry(String number){
 		Log.d("CHECKENTRY", "STILL GOOOD 11111");
 		
-		long id;
+		long id = 0;
 
 		UserEntry entry = new UserEntry();
 		
-		Cursor cursor = database.rawQuery("SELECT _ID FROM Users WHERE NAME LIKE '" +number+"'" , null);
+		Cursor cursor = database.query(UserDBHelper.TABLE_NAME, allColumns, UserDBHelper.NAME + " = 15555215554", null, null, null, null);
+		
+		
+		//Cursor cursor = database.rawQuery("SELECT _ID FROM Users WHERE NAME LIKE " +number , null);
 
 		Log.d("CHECKENTRY", "STILL GOOOD 222222");
+		cursor.moveToFirst();
+		Log.d("CHECKENTRY", "STILL GOOOD MMMMMMMMMM");
+		
 		
 		entry = cursorToEntry(cursor);
+		
+		Log.d("CHECKENTRY", "STILL GOOd TTTTTT"); 
 		id = entry.getID();
 		
 		Log.d("CHECKENTRY", "STILL GOOOD 333333");
-
-
+	
+			
+		
 		cursor.close();
 		return id;
 		
