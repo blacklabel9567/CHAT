@@ -38,10 +38,10 @@ public class MessageDataSource {
 					+ " = " + id, null);
 		}
 		
-		public MessageEntry addMessage(String name, String msg)
+		public MessageEntry addMessage(String msg, long cid)
 		{
 			ContentValues values = new ContentValues();
-			values.put(MessageDBHelper._CID, name);
+			values.put(MessageDBHelper._CID, cid);
 			values.put(MessageDBHelper.MESSAGE, msg);
 			long insertId = database.insert(MessageDBHelper.TABLE_NAME, null, values);
 			Cursor cursor = database.query(MessageDBHelper.TABLE_NAME, allColumns, MessageDBHelper._ID + " = " +insertId, null, null, null, null);

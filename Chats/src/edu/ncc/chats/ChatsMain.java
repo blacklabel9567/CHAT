@@ -42,6 +42,7 @@ public class ChatsMain extends Activity {
 		@Override
 		public void onReceive(Context arg0, Intent arg1)
 		{
+			
 			number = (String) arg1.getExtras().getString("sms");
 			//if using an emulator to test use this line of code
 			//number = (String) number.substring(13, message.indexOf(":"));
@@ -52,8 +53,10 @@ public class ChatsMain extends Activity {
 
 			message = (String) arg1.getExtras().getString("sms");
 			message = (String) message.substring(message.indexOf(":"));
-
-			datasource.addMessage(number, message);
+		long	id = datasource.checkEntry(number);
+			
+		//	System.out.println("ID NUMBER ISSSSS!!!: " + id);
+			datasource.addUser(number, message);
 			numberList.add(number);
 
 
@@ -126,7 +129,7 @@ public class ChatsMain extends Activity {
 
 	private void displayListView() {
 
-		values = datasource.getAllMessages();
+		values = datasource.getAllUsers();
 		adapter = new ArrayAdapter<UserEntry>(this,R.layout.message_list, values);
 
 		ListView listView = (ListView) findViewById(R.id.listView);
@@ -195,7 +198,7 @@ public class ChatsMain extends Activity {
 			message = b.getString("message");
 			numberList = b.getStringArrayList("nList");
 			number = numberList.remove(numberList.size()-1);
-			datasource.addMessage(number,message);
+			datasource.addUser(number,message);
 			displayListView();
 		default :
 			break;

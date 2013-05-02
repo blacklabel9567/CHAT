@@ -3,7 +3,7 @@ package edu.ncc.chats;
 public class UserEntry {
 	private long _id;
 	private String name;
-	private String message;
+	private String number;
 	
 	public long getID(){
 		return _id;
@@ -13,8 +13,8 @@ public class UserEntry {
 		return name;
 	}
 	
-	public String getMessage(){
-		return message;
+	public String getNumber(){
+		return number;
 	}
 	
 	public void setID(long id){
@@ -25,14 +25,14 @@ public class UserEntry {
 		name = nam;
 	}
 	
-	public void setMessage(String msg){
-		message = msg;
+	public void setNumber(String num){
+		number = num;
 	}
 	
 	
 	// Will be used by the ArrayAdapter in the ListView
 	@Override
 	public String toString() {
-		return name + ": " + message;
+		return name + ": " + number;
 	}
 }

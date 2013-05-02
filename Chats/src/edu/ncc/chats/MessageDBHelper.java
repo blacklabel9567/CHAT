@@ -18,7 +18,7 @@ public class MessageDBHelper extends SQLiteOpenHelper{
     public static final Uri CONTENT_URI = Uri.parse(SCHEME + "://" + AUTHORITY);
 	
     // table name
-	public static final String TABLE_NAME = "chats";
+	public static final String TABLE_NAME = "message";
 
 	// columns in the table
 	public static final String _ID = "_id";
