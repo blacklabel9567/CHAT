@@ -51,36 +51,38 @@ public class UserDataSource {
 		Log.d("USER", "In addUser");
 		return entry;
 	}
-
+	public void changeMessage(long id, String msg)
+	{
+		UserEntry entry = new UserEntry();
+		
+		Cursor cursor = database.query(UserDBHelper.TABLE_NAME, allColumns, UserDBHelper._ID + " = '" + id+"'", null, null, null, null);
+				
+		cursor.moveToFirst();
+		entry = cursorToEntry(cursor);
+		entry.setNumber(msg);
+		Log.d("changeMessage", entry.toString());
+		cursor.close();
+	}
 	public long checkEntry(String number){
-		Log.d("CHECKENTRY", "STILL GOOOD 11111");
 		
 		long id = 0;
 
 		UserEntry entry = new UserEntry();
 		
-		Cursor cursor = database.query(UserDBHelper.TABLE_NAME, allColumns, UserDBHelper.NAME + " = 15555215554", null, null, null, null);
-		
-		
-		//Cursor cursor = database.rawQuery("SELECT _ID FROM Users WHERE NAME LIKE " +number , null);
-
-		Log.d("CHECKENTRY", "STILL GOOOD 222222");
+		Cursor cursor = database.query(UserDBHelper.TABLE_NAME, allColumns, UserDBHelper.NAME + " = '" + number+"'", null, null, null, null);
+				
 		cursor.moveToFirst();
-		Log.d("CHECKENTRY", "STILL GOOOD MMMMMMMMMM");
-		
-		
+		if(cursor.getCount()==0){
+			cursor.close();
+			return 0;
+		}
+				
 		entry = cursorToEntry(cursor);
-		
-		Log.d("CHECKENTRY", "STILL GOOd TTTTTT"); 
 		id = entry.getID();
-		
-		Log.d("CHECKENTRY", "STILL GOOOD 333333");
-	
-			
-		
+				
 		cursor.close();
 		return id;
-		
+
 	}
 	public List<UserEntry> getAllUsers() {
 		List<UserEntry> usr = new ArrayList<UserEntry>();
@@ -97,7 +99,28 @@ public class UserDataSource {
 		cursor.close();
 		return usr;
 	}
-
+	
+	
+	
+//	public String getUserNumber(long i){
+//		long  id = i+1;
+//		String number;
+//		Log.d("getUserNumber", String.valueOf(id));
+//		UserEntry entry = new UserEntry();
+//		Log.d("getUserNumber", "22222");
+//		Cursor cursor = database.query(UserDBHelper.TABLE_NAME,
+//				allColumns, UserDBHelper.NAME + " = '" + id+ "'", null, null, null, null);
+//		Log.d("getUserNumber", "3333333");
+//		cursor.moveToFirst();
+//		Log.d("getUserNumber", "4444444444");
+//			entry = cursorToEntry(cursor);
+//			Log.d("getUserNumber", "5555555");
+//			number = entry.getName();
+//			Log.d("getUserNumber", "66666666");
+//		cursor.close();
+//		return number;
+//		
+//	}
 	private UserEntry cursorToEntry(Cursor cursor) {
 		UserEntry entry = new UserEntry();
 		entry.setID(cursor.getLong(0));

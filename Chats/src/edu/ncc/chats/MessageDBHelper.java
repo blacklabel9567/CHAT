@@ -27,7 +27,7 @@ public class MessageDBHelper extends SQLiteOpenHelper{
 	
 	// database version and name
 		private static final int DATABASE_VERSION = 3;
-		private static final String DATABASE_NAME = "chats.db";
+		private static final String DATABASE_NAME = "message.db";
 		
 		public MessageDBHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);

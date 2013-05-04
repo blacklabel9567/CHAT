@@ -65,10 +65,27 @@ public class Events extends Activity {
 		});
 	}
 	
+	
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.event_main, menu);
+		return true;
+	}
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.custom)
-		{
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			b = new Bundle();
+			b.putStringArrayList("EventList",EventList);
+			getIntent().putExtras(b);
+			setResult(RESULT_FIRST_USER , getIntent());
+			finish();
+			return true;
+		
+		
+		case R.id.custom:
+		
 			AlertDialog.Builder alert = new AlertDialog.Builder(this);
 			alert.setTitle("Create Custom Message");
 			alert.setMessage("Message");
@@ -90,14 +107,26 @@ public class Events extends Activity {
 				}
 			});
 			alert.show();
-			
+			return true;
 		}
-		return true;
+		
+		
+		return super.onOptionsItemSelected(item);
+}
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putStringArrayList("EventList", (ArrayList<String>)EventList);
+
+
 	}
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.event_main, menu);
-		return true;
+
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		// restore the state of the game --
+		// local variables = savedInstanceState.get...
+		EventList = savedInstanceState.getStringArrayList("EventList");
+
 	}
+	
 
 }

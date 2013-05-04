@@ -40,22 +40,21 @@ public class MessageDataSource {
 		
 		public MessageEntry addMessage(String msg, long cid)
 		{
-			ContentValues values = new ContentValues();
-			values.put(MessageDBHelper._CID, cid);
-			values.put(MessageDBHelper.MESSAGE, msg);
-			long insertId = database.insert(MessageDBHelper.TABLE_NAME, null, values);
-			Cursor cursor = database.query(MessageDBHelper.TABLE_NAME, allColumns, MessageDBHelper._ID + " = " +insertId, null, null, null, null);
-			cursor.moveToFirst();
-			MessageEntry entry = cursorToEntry(cursor);
-			cursor.close();
-			Log.d("Message", "In addMessage");
+			ContentValues values = new ContentValues();			
+			values.put(MessageDBHelper._CID, cid);			
+			values.put(MessageDBHelper.MESSAGE, msg);			
+			long insertId = database.insert(MessageDBHelper.TABLE_NAME, null, values);			
+			Cursor cursor = database.query(MessageDBHelper.TABLE_NAME, allColumns, MessageDBHelper._ID + " = " +insertId, null, null, null, null);			
+			cursor.moveToFirst();			
+			MessageEntry entry = cursorToEntry(cursor);			
+			cursor.close();			
 			return entry;
 		}
-		public List<MessageEntry> getAllMessages() {
+		public List<MessageEntry> getAllMessages(long id) {
 			List<MessageEntry> msg = new ArrayList<MessageEntry>();
 			MessageEntry entry = new MessageEntry();
 			Cursor cursor = database.query(MessageDBHelper.TABLE_NAME,
-					allColumns, null, null, null, null, null);
+					allColumns, MessageDBHelper._CID + " LIKE " + id, null, null, null, null);
 
 			cursor.moveToFirst();
 			while (!cursor.isAfterLast()) {

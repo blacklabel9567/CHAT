@@ -1,6 +1,6 @@
 package edu.ncc.chats;
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -16,27 +16,31 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
+
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
+
 
 public class OnGoingMessage extends Activity {
-
-	protected EditText txtPhoneNo;
-	protected Bundle b;
 	protected EditText txtMessage;
-	String theNumber;
 	String theMessage;
-	View v;
-	List<String> onGoingList = new ArrayList<String>();
-	private BroadcastReceiver send;
-	private BroadcastReceiver deliver;
+	String theNumber;
+	String sId;
+	long id;
 	
+	private BroadcastReceiver send;
+		
+	private UserDataSource datasource;
+	private MessageDataSource msgsource;
+
+	ArrayAdapter<MessageEntry> adapter;
+	List<MessageEntry> values;
+
 	//Intent filter to listen for incoming msgs	
 	IntentFilter intentFilter;
 	//receiver to handle incoming msgs
@@ -44,11 +48,29 @@ public class OnGoingMessage extends Activity {
 		@Override
 		public void onReceive(Context arg0, Intent arg1)
 		{
-			
-			theMessage =(String)arg1.getExtras().getString("sms");
-			//theMessage = theMessage.substring(25);
-			onGoingList.add(theMessage);
+			String number;
+			String message;
+			long inId;
+			number = (String) arg1.getExtras().getString("sms");
+			number = (String) number.substring(0, number.indexOf(":"));
+
+			message = (String) arg1.getExtras().getString("sms");
+			message = (String) message.substring(message.indexOf(":")+1);
+
+			inId = datasource.checkEntry(number);
+
+			if(inId==0){
+				datasource.addUser(number, message);
+				inId = datasource.checkEntry(number);
+				msgsource.addMessage(message, inId);
+				
+			}else{
+				datasource.changeMessage(inId,message);
+				msgsource.addMessage(message, inId);				
+			}
+
 			displayListView();
+
 		}
 	};
 	
@@ -62,11 +84,21 @@ public class OnGoingMessage extends Activity {
         intentFilter = new IntentFilter();
         intentFilter.addAction("SMS_RECEIVED_ACTION");
 
+        datasource = new UserDataSource(this);
+		datasource.open();
+
+		msgsource = new MessageDataSource(this);
+		msgsource.open();
 		
-		onGoingList = getIntent().getStringArrayListExtra("msgList");
-		theNumber = getIntent().getStringExtra("onGoNumber");
-		theMessage = getIntent().getStringExtra("onGoMessage");
+		
+		sId = getIntent().getStringExtra("id");
+		theNumber = getIntent().getStringExtra("num");
+		
+		id = Long.parseLong(sId);
+		//theNumber = datasource.getUserNumber(id);
+		
 		txtMessage = (EditText)findViewById(R.id.messageOnG);
+		
 		// Show the Up button in the action bar.
 				setupActionBar();
 		displayListView();
@@ -75,27 +107,12 @@ public class OnGoingMessage extends Activity {
 	}
 	
 	private void displayListView() {
-   	 
-  	  
- 	   
-  	  //create an ArrayAdapter from the String Array
-  	  ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this,
-  	    R.layout.ongoing_message_list, onGoingList);
-  	  ListView listView = (ListView) findViewById(R.id.onGoingList);
-  	  // Assign adapter to ListView
-  	  listView.setAdapter(dataAdapter);
-  	   
-  	  //enables filtering for the contents of the given ListView
-  	  listView.setTextFilterEnabled(true);
-  	 
-  	  listView.setOnItemClickListener(new OnItemClickListener() {
-  	   public void onItemClick(AdapterView<?> parent, View view,
-  	     int position, long id) {
-  	       // When clicked, start a new activity with a single conversation chat
-  	    
-  	   }
-  	  });
-  	   
+   	 	values = msgsource.getAllMessages(id);
+		adapter = new ArrayAdapter<MessageEntry>(this,R.layout.message_list, values);
+
+		ListView listView = (ListView) findViewById(R.id.onGoingList);
+		listView.setAdapter(adapter);
+
   	 }
 	
 	private void setupActionBar() {
@@ -115,15 +132,14 @@ public class OnGoingMessage extends Activity {
 
 	public void sendMessage(View view){
 
-		
 		theMessage = txtMessage.getText().toString();
 
 		StringTokenizer st = new StringTokenizer(theNumber,",");
 		while (st.hasMoreElements())
 		{
 			String tempNumber = (String)st.nextElement();
-			if(tempNumber.length()>0 && theMessage.trim().length()>0) {
-				onGoingList.add("Me : " + theMessage);
+			if( theMessage.trim().length()>0) {
+				msgsource.addMessage(theMessage, id);
 				sendSMS(tempNumber, theMessage);
 			}
 			else {
@@ -136,15 +152,15 @@ public class OnGoingMessage extends Activity {
 		displayListView();
 		txtMessage.setText(""); 
 		unregisterReceiver(send);
-		unregisterReceiver(deliver);
+		
 	}//end sendMessage
 
 		private void sendSMS(String number, String message){
-			String msgSent ="Message Sent!";
-			String msgDelivered = "Message Delivered";
+String msgSent ="Message Sent!";
+			
 
 			PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(msgSent), 0);
-			PendingIntent deliveredPI = PendingIntent.getBroadcast(this, 0, new Intent(msgDelivered), 0);
+			
 
 			send = new BroadcastReceiver(){
 
@@ -169,31 +185,9 @@ public class OnGoingMessage extends Activity {
 			
 			registerReceiver(send,new  IntentFilter(msgSent));//end registerReciever
 
-			deliver = new BroadcastReceiver()
-			{
-				@Override
-				public void onReceive(Context context, Intent intent) {
-
-					switch(getResultCode())
-					{
-					case Activity.RESULT_OK:
-						Toast.makeText(getBaseContext(),"Dispatch Delivered!",Toast.LENGTH_LONG).show();
-						break;
-					case Activity.RESULT_CANCELED:
-						Toast.makeText(getBaseContext(),"Dispatch NOT Delivered!",Toast.LENGTH_LONG).show();
-						break;
-					}
-				}
-			};
-			
-			registerReceiver(deliver,new  IntentFilter(msgDelivered));//end registerReciever
-
-
-
-
 
 			SmsManager sms = SmsManager.getDefault();
-			sms.sendTextMessage(number, null, message, sentPI, deliveredPI);
+			sms.sendTextMessage(number, null, message, sentPI, null);
 			
 		}//end sendSMS
 	
@@ -242,8 +236,9 @@ public class OnGoingMessage extends Activity {
     	super.onPause();
     	}
     public void onStop(){
-		super.onStop();
-		unregisterReceiver(deliver);
+    	unregisterReceiver(intentReceiver);
+    	super.onStop();
+		
 	}
     
 	public void events(View view){
@@ -253,8 +248,8 @@ public class OnGoingMessage extends Activity {
 	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		//put stuff that gets returned from events here
-		Bundle b = data.getExtras();
-		theMessage = b.getString("result");
-		txtMessage.setText(theMessage);
+//		Bundle b = data.getExtras();
+//		theMessage = b.getString("result");
+//		txtMessage.setText(theMessage);
 	}
 }

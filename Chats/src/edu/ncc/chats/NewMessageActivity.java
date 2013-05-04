@@ -1,7 +1,7 @@
 package edu.ncc.chats;
 
 
-import java.util.ArrayList;
+
 import java.util.List;
 import java.util.StringTokenizer;
 import android.os.Bundle;
@@ -13,9 +13,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Toast;
 import android.telephony.SmsManager;
@@ -23,21 +25,29 @@ import android.telephony.SmsManager;
 public class NewMessageActivity extends Activity {
 	protected EditText txtPhoneNo;
 	protected EditText txtMessage;
-	protected List<String> messageList;
-	protected List<String> numberList;
+	
 	protected Bundle b;
 	String tempNumber;
 	String theNumber;
 	String theMessage;
 	private BroadcastReceiver send;
 	
-	
+	private UserDataSource datasource;
+	private MessageDataSource msgsource;
+
+	ArrayAdapter<MessageEntry> adapter;
+	List<MessageEntry> values;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_new_message);
 		
+		datasource = new UserDataSource(this);
+		datasource.open();
+
+		msgsource = new MessageDataSource(this);
+		msgsource.open();
 		
 		
 		// Show the Up button in the action bar.
@@ -46,8 +56,7 @@ public class NewMessageActivity extends Activity {
 		
 		txtPhoneNo = (EditText)findViewById(R.id.to);
 		txtMessage = (EditText)findViewById(R.id.message);
-		messageList = new ArrayList<String>();
-		numberList = getIntent().getStringArrayListExtra("numList");
+		
 
 
 	}
@@ -79,17 +88,43 @@ public class NewMessageActivity extends Activity {
 	}
 
 	public void sendMessage(View view){
-
+		long inId;
 		theNumber = txtPhoneNo.getText().toString();
 		theMessage = txtMessage.getText().toString();
-
+		
 		StringTokenizer st = new StringTokenizer(theNumber,",");
 		while (st.hasMoreElements())
 		{
+			
 			tempNumber = (String)st.nextElement();
 			if(tempNumber.length()>0 && theMessage.trim().length()>0) {
-				numberList.add(tempNumber);
-				sendSMS(tempNumber, theMessage);
+				inId = datasource.checkEntry(theNumber);
+				if(inId==0){
+					if(theMessage.trim().contains((CharSequence)"<name>")){
+						theMessage = theMessage.replace((CharSequence)"<name>", (CharSequence)tempNumber);
+						datasource.addUser(theNumber, theMessage);
+						inId = datasource.checkEntry(theNumber);
+						msgsource.addMessage(theMessage, inId);
+						sendSMS(theNumber, theMessage);
+					}else{
+					datasource.addUser(theNumber, theMessage);
+					inId = datasource.checkEntry(theNumber);
+					msgsource.addMessage(theMessage, inId);
+					sendSMS(theNumber, theMessage);
+					}
+				}else{
+					if(theMessage.trim().contains((CharSequence)"<name>")){
+						theMessage = theMessage.replace((CharSequence)"<name>", (CharSequence)tempNumber);
+					datasource.changeMessage(inId,theMessage);
+					msgsource.addMessage(theMessage, inId);
+					sendSMS(theNumber, theMessage);
+					}else{
+						datasource.changeMessage(inId,theMessage);
+						msgsource.addMessage(theMessage, inId);
+						sendSMS(theNumber, theMessage);
+					}
+				}
+						
 			}
 			else {
 				Toast.makeText(getBaseContext(), 
@@ -97,13 +132,10 @@ public class NewMessageActivity extends Activity {
 						Toast.LENGTH_SHORT).show();
 			}
 		}
+			
+
+		
 		unregisterReceiver(send);
-		b = new Bundle();
-		b.putString("message", theMessage);
-//		b.putString("number", theNumber);
-//		b.putStringArrayList("mList", (ArrayList<String>) messageList);
-		b.putStringArrayList("nList", (ArrayList<String>) numberList);
-		this.getIntent().putExtras(b);
 		this.setResult(RESULT_OK, getIntent());
 		finish();
 	
@@ -112,10 +144,10 @@ public class NewMessageActivity extends Activity {
 		private void sendSMS(String number, String message){
 			String msgSent ="SMS_SENT";
 			//String msgDelivered = "Message Delivered";
-
+	
 			PendingIntent sentPI = PendingIntent.getBroadcast(this, 0, new Intent(msgSent), 0);
 		
-
+		
 			send = new BroadcastReceiver(){
 
 				@Override
@@ -134,15 +166,12 @@ public class NewMessageActivity extends Activity {
 						break;
 					}
 				}
-			};
-			
-			
+			};		
 			registerReceiver(send,new  IntentFilter(msgSent));//end registerReciever
-
-
 
 			SmsManager sms = SmsManager.getDefault();
 			sms.sendTextMessage(number, null, message, sentPI,null);
+		
 		}//end sendSMS
 		
 		
@@ -172,27 +201,41 @@ public class NewMessageActivity extends Activity {
 		}
 	}
 
+	
+
+	public void events(View view){
+    	Intent intent = new Intent(this, Events.class);
+    	startActivityForResult(intent, 0);
+    	
+    }//end events 
+	
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (resultCode) {
+
+		case RESULT_CANCELED:
+			break;
+		case RESULT_OK:
+			//put stuff that gets returned from events here
+			Bundle b = data.getExtras();
+			theMessage = b.getString("result");
+			txtMessage.setText(theMessage + " <name>");
+		case RESULT_FIRST_USER:
+			Bundle c = data.getExtras();
+		default :
+			break;
+		}
+		
+	}
 	public void onStop(){
 		super.onStop();
+		unregisterReceiver(send);
 		
 		
 	}
 	
 	public void onPause(){
 		super.onPause();
-		//unregisterReceiver(send);
+		unregisterReceiver(send);
 		
-	}
-
-	public void events(View view){
-    	Intent intent = new Intent(NewMessageActivity.this, Events.class);
-    	startActivityForResult(intent, 0);
-    }//end events 
-	
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		//put stuff that gets returned from events here
-		Bundle b = data.getExtras();
-		theMessage = b.getString("result");
-		txtMessage.setText(theMessage);
 	}
 }
