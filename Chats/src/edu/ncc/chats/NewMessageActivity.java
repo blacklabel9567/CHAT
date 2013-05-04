@@ -30,6 +30,7 @@ public class NewMessageActivity extends Activity {
 	String tempNumber;
 	String theNumber;
 	String theMessage;
+	String tempMessage;
 	private BroadcastReceiver send;
 	
 	private UserDataSource datasource;
@@ -91,37 +92,37 @@ public class NewMessageActivity extends Activity {
 		long inId;
 		theNumber = txtPhoneNo.getText().toString();
 		theMessage = txtMessage.getText().toString();
-		
+		tempMessage = theMessage;
 		StringTokenizer st = new StringTokenizer(theNumber,",");
 		while (st.hasMoreElements())
 		{
 			
 			tempNumber = (String)st.nextElement();
 			if(tempNumber.length()>0 && theMessage.trim().length()>0) {
-				inId = datasource.checkEntry(theNumber);
+				inId = datasource.checkEntry(tempNumber);
 				if(inId==0){
 					if(theMessage.trim().contains((CharSequence)"<name>")){
-						theMessage = theMessage.replace((CharSequence)"<name>", (CharSequence)tempNumber);
-						datasource.addUser(theNumber, theMessage);
-						inId = datasource.checkEntry(theNumber);
-						msgsource.addMessage(theMessage, inId);
-						sendSMS(theNumber, theMessage);
+						tempMessage = theMessage.replace((CharSequence)"<name>", (CharSequence)tempNumber);
+						datasource.addUser(tempNumber, tempMessage);
+						inId = datasource.checkEntry(tempNumber);
+						msgsource.addMessage(tempMessage, inId);
+						sendSMS(tempNumber, tempMessage);
 					}else{
-					datasource.addUser(theNumber, theMessage);
-					inId = datasource.checkEntry(theNumber);
+					datasource.addUser(tempNumber, theMessage);
+					inId = datasource.checkEntry(tempNumber);
 					msgsource.addMessage(theMessage, inId);
-					sendSMS(theNumber, theMessage);
+					sendSMS(tempNumber, theMessage);
 					}
 				}else{
 					if(theMessage.trim().contains((CharSequence)"<name>")){
-						theMessage = theMessage.replace((CharSequence)"<name>", (CharSequence)tempNumber);
-					datasource.changeMessage(inId,theMessage);
-					msgsource.addMessage(theMessage, inId);
-					sendSMS(theNumber, theMessage);
+						tempMessage = theMessage.replace((CharSequence)"<name>", (CharSequence)tempNumber);
+					datasource.changeMessage(inId,tempMessage);
+					msgsource.addMessage(tempMessage, inId);
+					sendSMS(tempNumber,tempMessage);
 					}else{
 						datasource.changeMessage(inId,theMessage);
 						msgsource.addMessage(theMessage, inId);
-						sendSMS(theNumber, theMessage);
+						sendSMS(tempNumber, theMessage);
 					}
 				}
 						
@@ -228,14 +229,9 @@ public class NewMessageActivity extends Activity {
 	}
 	public void onStop(){
 		super.onStop();
-		unregisterReceiver(send);
-		
-		
-	}
+		}
 	
 	public void onPause(){
 		super.onPause();
-		unregisterReceiver(send);
-		
 	}
 }

@@ -242,14 +242,24 @@ String msgSent ="Message Sent!";
 	}
     
 	public void events(View view){
-    	Intent intent = new Intent(OnGoingMessage.this, Events.class);
+    	Intent intent = new Intent(this, Events.class);
     	startActivityForResult(intent, 0);
     }//end events 
 	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		//put stuff that gets returned from events here
-//		Bundle b = data.getExtras();
-//		theMessage = b.getString("result");
-//		txtMessage.setText(theMessage);
+		switch (resultCode) {
+
+		case RESULT_CANCELED:
+			break;
+		case RESULT_OK:
+			//put stuff that gets returned from events here
+			Bundle b = data.getExtras();
+			theMessage = b.getString("result");
+			txtMessage.setText(theMessage + " <name>");
+		case RESULT_FIRST_USER:
+			Bundle c = data.getExtras();
+		default :
+			break;
+		}
 	}
 }
